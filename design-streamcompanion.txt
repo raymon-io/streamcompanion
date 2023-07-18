@@ -1,0 +1,49 @@
+1. ionic start 
+    angular, standalone, routing, scss
+2. create hosting files
+    firebase.json {
+                    "hosting": {
+                        "public": "www",
+                        "ignore": ["firebase.json","**/.*","**/node_modules/**"],
+                        "rewrites": [
+                        {
+                            "source": "**",
+                            "destination": "/index.html"
+                        }
+                        ],
+                        "predeploy": [
+                        "npm run build"
+                        ]
+                    }
+                    }
+    .firebaserc {
+            "projects": {
+                "default": "project-name"
+            }
+            }
+
+3.
+    [1] home page update
+        a. Change the app default titles/names - src/index.html, home.page.html ion-header title,
+        b. change home page route from '/home' to ''. (app.routes.ts), delete redirect
+        c. add simple button to navigate to kick (home.page.html)
+            <h2 class="ion-text-center">Stream Companion Tools: </h2>
+                <ion-grid>
+                    <ion-row>
+                    <ion-col size="6" offset="3">
+                        <ion-button expand="block" [routerLink]="['/kick']">Kick Companion</ion-button>
+                    </ion-col>
+                    </ion-row>
+                    </ion-grid>
+        d. add routermodule for routerLink to work (home.page.ts) and add to imports
+    [2] 
+        a. add kick page, interface kick/interfaces/kickinterface, service kick/services/kick
+        b. add routermodule on kick page, also add the interface and service too.
+        c. add ionbutton going to home page in kick header toolbar.
+            <ion-buttons slot="start">
+            <ion-button [routerLink]="['/']">
+                <ion-icon name="home"></ion-icon>
+            </ion-button>
+            </ion-buttons>
+4.
+
