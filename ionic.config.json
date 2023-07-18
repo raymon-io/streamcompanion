@@ -1,0 +1,7 @@
+{
+  "name": "streamcompanion",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
