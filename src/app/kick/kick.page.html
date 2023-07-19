@@ -16,10 +16,35 @@
     </ion-toolbar>
   </ion-header>
 
+  <!-- featured -->
   <h3 class="ion-text-center">Kick Featured Streamers</h3>
   <ion-list>
-
+    <div *ngFor="let item of featuredStreamers">
+      <app-kickprofile [streamer]="item"></app-kickprofile>
+    </div>
   </ion-list>
-  
+
+  <!-- search -->
+  <h3 class="ion-text-center">Kick Streamer Search</h3>
+  <ion-searchbar [(ngModel)]="searchTerm" (keyup.enter)="searchStreamer()">
+    <ion-button slot="end" (click)="searchStreamer()">Search</ion-button>
+  </ion-searchbar>
+  <!-- when the search is going on show a spinner -->
+  <ion-spinner *ngIf="searching"></ion-spinner>
+  <p *ngIf="!searchFound">No results found</p>
+
+  <ion-list>
+    <div *ngFor="let item of searchStreamers">
+      <app-kickprofile [streamer]="item"></app-kickprofile>
+    </div>
+  </ion-list>
+  <!-- exact match -->
+  <!-- <div *ngIf="searchStreamerExact">
+    <app-testcomp [streamer]="searchStreamerExact"></app-testcomp>
+  </div> -->
+
+  <!-- list of matches -->
+
+
 
 </ion-content>

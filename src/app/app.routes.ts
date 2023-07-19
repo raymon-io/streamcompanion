@@ -9,6 +9,10 @@ export const routes: Routes = [
     path: 'kick',
     loadComponent: () => import('./kick/kick.page').then( m => m.KickPage)
   },
+  {
+    path: 'kick/:streamerName',
+    loadComponent: () => import('./kick/kickwatch/kickwatch.page').then( m => m.KickwatchPage)
+  },
   // {
   //   path: '',
   //   redirectTo: '',

@@ -1,28 +1,30 @@
-1. ionic start 
-    angular, standalone, routing, scss
-2. create hosting files
-    firebase.json {
-                    "hosting": {
-                        "public": "www",
-                        "ignore": ["firebase.json","**/.*","**/node_modules/**"],
-                        "rewrites": [
-                        {
-                            "source": "**",
-                            "destination": "/index.html"
-                        }
-                        ],
-                        "predeploy": [
-                        "npm run build"
-                        ]
-                    }
-                    }
-    .firebaserc {
-            "projects": {
-                "default": "project-name"
-            }
-            }
+1. create new project
+    ionic start  -> angular, standalone, routing, scss
 
-3.
+2. create hosting files
+    code:
+            firebase.json {
+                        "hosting": {
+                            "public": "www",
+                            "ignore": ["firebase.json","**/.*","**/node_modules/**"],
+                            "rewrites": [
+                            {
+                                "source": "**",
+                                "destination": "/index.html"
+                            }
+                            ],
+                            "predeploy": [
+                            "npm run build"
+                            ]
+                        }
+                        }
+        .firebaserc {
+                "projects": {
+                    "default": "project-name"
+                }
+                }
+
+3.  home page update, kick page, interface, service added
     [1] home page update
         a. Change the app default titles/names - src/index.html, home.page.html ion-header title,
         b. change home page route from '/home' to ''. (app.routes.ts), delete redirect
@@ -36,7 +38,7 @@
                     </ion-row>
                     </ion-grid>
         d. add routermodule for routerLink to work (home.page.ts) and add to imports
-    [2] 
+    [2] severeal files added
         a. add kick page, interface kick/interfaces/kickinterface, service kick/services/kick
         b. add routermodule on kick page, also add the interface and service too.
         c. add ionbutton going to home page in kick header toolbar.
@@ -45,5 +47,225 @@
                 <ion-icon name="home"></ion-icon>
             </ion-button>
             </ion-buttons>
-4.
+
+4.  edit kick.page, add kickprofile, update service and interface, kickwatch added
+    Summary:
+        1. add featured streamer, search 
+        2. add kickprofile to use them in featured or search list 
+        3. update service and interface for it.
+        4. add kickwatch and update app.routes to go to when watch would be clicked
+    Details:
+        1. update kick.page.html
+            a. add featured streamers section
+                <h3 class="ion-text-center">Kick Featured Streamers</h3>
+                <ion-list>
+                    <div *ngFor="let item of featuredStreamers">
+                    <app-kickprofile [streamer]="item"></app-kickprofile>
+                    </div>
+                </ion-list> 
+            b. add search section 
+                  <!-- search -->
+                <h3 class="ion-text-center">Kick Streamer Search</h3>
+                <ion-searchbar [(ngModel)]="searchTerm" (keyup.enter)="searchStreamer()">
+                    <ion-button slot="end" (click)="searchStreamer()">Search</ion-button>
+                </ion-searchbar>
+                <!-- when the search is going on show a spinner -->
+                <ion-spinner *ngIf="searching"></ion-spinner>
+                <p *ngIf="!searchFound">No results found</p>
+
+                <ion-list>
+                    <div *ngFor="let item of searchStreamers">
+                    <app-kickprofile [streamer]="item"></app-kickprofile>
+                    </div>
+                </ion-list>
+        2. add component kick/kickprofile -> edit kickprofile.component.ts -> add @Input() streamer!: Kickinterface;
+        3. update kick.page.ts 
+            a. add component kickprofile to imports + update constructor: private kickService: KickService 
+            b. For search 
+                code: 
+                    // search variables
+                    searchTerm: string = '';
+                    searchFound: boolean = true;
+                    searching: boolean = false;
+
+                    searchStreamerExact: Kickinterface | null = null;
+                    searchStreamers: Kickinterface[] = [];
+                    async searchStreamer() {
+                        this.searching = true;
+                        if (this.searchTerm.length < 3) {
+                        this.searchFound = false;
+                        this.searching = false;
+                        return;
+                        }
+                        const url = 'https://kick.com/api/search?searched_word=' + this.searchTerm;
+                        const response = await fetch(url);
+                        if (response.status == 200) {
+                        const data = await response.json();
+                        if (data['channels'] != null && data['channels'].length > 0) {
+                            const channels = data['channels'] as Kickinterface[];
+                            // add livestream to popular streamers
+                            console.log(channels.length);
+                            for (const i of channels) {
+                            const livestream = (await this.kickService.getApi(i.slug))?.livestream;
+                            channels[channels.indexOf(i)].livestream = livestream;
+                            }
+                            this.searchFound = true;
+                            this.searching = false;
+                            this.searchStreamers = channels;
+                        } else {
+                            this.searchFound = false;
+                            this.searching = false;
+                        }
+                        } else { // not 200
+                        console.log('not 200 status');
+                        this.searchFound = false;
+                        this.searching = false;
+                        }
+
+                    }
+
+            c. for featured streamers
+                code: 
+                    ngOnInit() {
+                        this.getFeaturedStreamers();
+                    }
+
+                    async getFeaturedStreamers() {
+                        let _featuredStreamersList = [];
+                        for (const i of this.featuredStreamersList) {
+                        const data = await this.kickService.getApi(i) as Kickinterface;
+                        _featuredStreamersList.push(data);
+                        }
+                        this.featuredStreamers = _featuredStreamersList;
+                    }
+        4. update kick.service.ts - For shared data and use of signal
+            a. add kickinterface 
+            b. variables
+                  // variables
+                    signalStreamer: WritableSignal<Kickinterface | null> = signal(null);
+                    streamUrl: WritableSignal<string> = signal('');
+            c. getApi function 
+                  async getApi(searchUsername: string) {
+                    const url = 'https://kick.com/api/v2/channels/' + searchUsername;
+                    const response = await fetch(url);
+                    let returnData: Kickinterface | null = null;
+                    if (response.status == 200) {
+                    console.log("success");
+                    returnData = (await response.json()) as Kickinterface;
+                    } else {
+                    console.log("fail");
+                    returnData = null;
+                    }
+                    return returnData;
+                } 
+        5. update kick interface
+            Summary:
+                added commonly used variables from kick api. due to different data types being returned from different api,
+                some variables are made optional. for example profile_pic and profilePic.
+            Code:
+                export interface Kickinterface {
+                    user_id: number;
+                    slug: string;
+                    playback_url: string;
+                    user: {
+                    username: string;
+                    bio: string;
+                    profile_pic?: string;
+                    profilePic?: string;
+                    };
+                    livestream?: {
+                    is_live: boolean;
+                    categories: {
+                        name: string;
+                    }[];
+                    viewer_count: number;
+                    is_mature: boolean;
+                    session_title: string;
+                    };
+                    followers_count: number;
+                    verified?: boolean | object | null;
+                }
+        6. update component kick/kickprofile
+            a. kickprofile.component.html
+                Summary:
+                    Entire thing is ion-item with avatar and other content such as bio and live buttons wrapped inside ion-label
+                1.  Avatar one img for profile_pic and other for profilePic (featured/search)
+                    Code:
+                        <ion-avatar slot="start">
+                            <img *ngIf="streamer.user.profile_pic" [src]="streamer.user.profile_pic ? streamer.user.profile_pic: './assets/kick/defaultPic.png'">
+                            <img *ngIf="!streamer.user.profile_pic" [src]="streamer.user.profilePic ? streamer.user.profilePic: './assets/kick/defaultPic.png'">
+                        </ion-avatar>
+                2. label content
+                    a. general overview:
+                        <ion-label>
+                        <h3>{{ streamer.user.username }}</h3>
+                        <p>{{ streamer.user.bio }}</p>
+                        <div *ngIf="streamer.livestream?.is_live">
+                        </div>
+                        <p *ngIf="!streamer.livestream?.is_live">Offline</p>
+                    b. if streamer is live then content for div 
+                        1. button for watch - need to add routermodule for routerLink to work 
+                            Code:
+                                <p>Live Now!</p>
+                                <ion-button (click)="kickService.signalStreamer.set(streamer)" [routerLink]="['/kick/', streamer.slug]" >
+                                <ion-icon name="play"></ion-icon>
+                                Watch
+                                </ion-button>
+                        2. button for open in kick 
+                            Code:
+                                <ion-button [href]="'https://kick.com/'+streamer.slug" target="_blank"
+                                    title="Open url in new window: https://kick.com/{{streamer.slug}}">
+                                    Open in Kick
+                                    <ion-icon name="open"></ion-icon>
+                                    </ion-button>
+                        3. moreoptions and others 
+                        Code:
+                            <ion-button (click)="moreoptions = !moreoptions"
+                                title="Open more options like download, open in vlc or download stream url">
+                                More Options
+                                <ion-icon *ngIf="!moreoptions" name="chevron-down-outline"></ion-icon>
+                                <ion-icon *ngIf="moreoptions" name="chevron-up-outline"></ion-icon>
+                                </ion-button>
+                                <div *ngIf="moreoptions">
+                                <ion-button [href]="streamer.playback_url" target="_blank"
+                                    title="Download the m3u8 file to open in program such as VLC">
+                                    <ion-icon name="download"></ion-icon>
+                                    Download
+                                </ion-button>
+                                <!-- open in VLC -->
+                                <ion-button [href]="'vlc://'+streamer.playback_url" target="_blank" title="Open m3u8 in VLC directly">
+                                    Open in VLC
+                                </ion-button>
+                                <ion-button (click)="copyToClipboard(streamer.playback_url)" title="Copy the m3u8 url in clipboard">
+                                    <ion-icon name="copy"></ion-icon>
+                                    Copy
+                                </ion-button>
+                                </div>
+            b. kickprofile.component.ts 
+                1. add IonicModule, CommonModule, RouterModule to imports
+                2. add kickinterface and kickservice and toastcontroller
+                3. add kickservice and toastcontroller to constructor 
+                4. add copyToClipboard function
+                    Code:
+                        async copyToClipboard(url: string) {
+                            await navigator.clipboard.writeText(url);
+                            const toast = await this.toastController.create({
+                            message: 'Copied to clipboard',
+                            duration: 2000
+                            });
+                            toast.present();
+                        }
+        7. Add assets/kick/defaultPic.png for default profile pic if profile pic not found 
+        8. add kick/kickwatch page and edit app.routes 
+            Code:
+                {
+                    path: 'kick/:streamerName',
+                    loadComponent: () => import('./kick/kickwatch/kickwatch.page').then( m => m.KickwatchPage)
+                },
+5. 
+
+
+        
+                            
+
 
