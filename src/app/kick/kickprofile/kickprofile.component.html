@@ -1,46 +1,67 @@
 <ion-item>
   <ion-avatar slot="start">
-    <img *ngIf="streamer.user.profile_pic" [src]="streamer.user.profile_pic ? streamer.user.profile_pic: './assets/kick/defaultPic.png'">
-    <img *ngIf="!streamer.user.profile_pic" [src]="streamer.user.profilePic ? streamer.user.profilePic: './assets/kick/defaultPic.png'">
+    <img *ngIf="streamer.user.profile_pic"
+      [src]="streamer.user.profile_pic ? streamer.user.profile_pic: './assets/kick/defaultPic.png'">
+    <img *ngIf="!streamer.user.profile_pic"
+      [src]="streamer.user.profilePic ? streamer.user.profilePic: './assets/kick/defaultPic.png'">
   </ion-avatar>
-<ion-label>
-  <h3>{{ streamer.user.username }}</h3>
-  <p>{{ streamer.user.bio }}</p>
-  <!-- <p *ngIf="searchStreamerExact.livestream?.is_live">Live Now!</p> -->
-  <div *ngIf="streamer.livestream?.is_live">
-    <p>Live Now!</p>
-    <ion-button (click)="kickService.signalStreamer.set(streamer)" [routerLink]="['/kick/', streamer.slug]" >
-      <ion-icon name="play"></ion-icon>
-      Watch
-    </ion-button>
-    <ion-button [href]="'https://kick.com/'+streamer.slug" target="_blank"
-      title="Open url in new window: https://kick.com/{{streamer.slug}}">
-      Open in Kick
-      <ion-icon name="open"></ion-icon>
-    </ion-button>
-    <!-- more options, if selected show these -->
-    <ion-button (click)="moreoptions = !moreoptions"
-      title="Open more options like download, open in vlc or download stream url">
-      More Options
-      <ion-icon *ngIf="!moreoptions" name="chevron-down-outline"></ion-icon>
-      <ion-icon *ngIf="moreoptions" name="chevron-up-outline"></ion-icon>
-    </ion-button>
-    <div *ngIf="moreoptions">
-      <ion-button [href]="streamer.playback_url" target="_blank"
-        title="Download the m3u8 file to open in program such as VLC">
-        <ion-icon name="download"></ion-icon>
-        Download
-      </ion-button>
-      <!-- open in VLC -->
-      <ion-button [href]="'vlc://'+streamer.playback_url" target="_blank" title="Open m3u8 in VLC directly">
-        Open in VLC
-      </ion-button>
-      <ion-button (click)="copyToClipboard(streamer.playback_url)" title="Copy the m3u8 url in clipboard">
-        <ion-icon name="copy"></ion-icon>
-        Copy
-      </ion-button>
+  <ion-label>
+    <ion-text style="padding-right: 3px;">{{ streamer.user.username }}</ion-text>
+    <!-- verified icon -->
+    <ion-icon *ngIf="streamer.verified" name="checkmark-circle-outline" style="padding-right: 10px;"></ion-icon>
+    <!-- followers -->
+    <div>
+      <ion-icon name="people-outline" style="padding-right: 5px;"></ion-icon>
+      <ion-text *ngIf="streamer.followers_count">{{ streamer.followers_count | number }} Followers</ion-text>
+      <ion-text *ngIf="!streamer.followers_count">{{streamer.followersCount | number }} Followers</ion-text>
     </div>
-  </div>
-  <p *ngIf="!streamer.livestream?.is_live">Offline</p>
-</ion-label>
+    <p>{{ streamer.user.bio }}</p>
+    <!-- <p *ngIf="searchStreamerExact.livestream?.is_live">Live Now!</p> -->
+    <div *ngIf="streamer.livestream?.is_live">
+      <div>
+        <p>Live Now!</p>
+        <!-- viewer number -->
+        <ion-icon name="eye-outline" style="padding-right: 5px;"></ion-icon>
+        <ion-text>{{ streamer.livestream?.viewer_count | number }} Viewers</ion-text>
+      </div>
+      <ion-button (click)="kickService.signalStreamer.set(streamer)" [routerLink]="['/kick/', streamer.slug]">
+        <ion-icon name="play"></ion-icon>
+        Watch
+      </ion-button>
+      <ion-button [href]="'https://kick.com/'+streamer.slug" target="_blank"
+        title="Open url in new window: https://kick.com/{{streamer.slug}}">
+        Open in Kick
+        <ion-icon name="open"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="cjs?.available" (click)="cjs?.cast('https://corsproxy.io/?' + streamer.playback_url)"
+        title="Cast to chromecast">
+        <ion-icon [src]="'./assets/cast/cast_white.svg'"></ion-icon>
+        Chromecast
+      </ion-button>
+      <!-- more options, if selected show these -->
+      <ion-button (click)="moreoptions = !moreoptions"
+        title="Open more options like download, open in vlc or download stream url">
+        More Options
+        <ion-icon *ngIf="!moreoptions" name="chevron-down-outline"></ion-icon>
+        <ion-icon *ngIf="moreoptions" name="chevron-up-outline"></ion-icon>
+      </ion-button>
+      <div *ngIf="moreoptions">
+        <ion-button [href]="streamer.playback_url" target="_blank"
+          title="Download the m3u8 file to open in program such as VLC">
+          <ion-icon name="download"></ion-icon>
+          Download
+        </ion-button>
+        <ion-button (click)="copyToClipboard(streamer.playback_url)" title="Copy the m3u8 url in clipboard">
+          <ion-icon name="copy"></ion-icon>
+          Copy
+        </ion-button>
+        <ion-button (click)="copyToClipboard('https://corsproxy.io/?' + streamer.playback_url)"
+          title="Copy the cors m3u8 url in clipboard">
+          <ion-icon name="copy"></ion-icon>
+          Copy Cors Url
+        </ion-button>
+      </div>
+    </div>
+    <p *ngIf="!streamer.livestream?.is_live">Offline</p>
+  </ion-label>
 </ion-item>

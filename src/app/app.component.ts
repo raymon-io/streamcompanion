@@ -9,5 +9,15 @@ import { IonicModule } from '@ionic/angular';
   imports: [IonicModule],
 })
 export class AppComponent {
-  constructor() {}
+  constructor(
+    // private platform: Platform
+  ) {
+    // this.initializeApp();
+  }
+
+  // initializeApp() {
+  //   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  //   document.body.classList.toggle('dark',true);
+  //   console.log('prefersDark',prefersDark);
+  // }
 }

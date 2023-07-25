@@ -24,3 +24,9 @@
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
+
+
+// css added for videojs and silvermine
+// added
+@import '~video.js/dist/video-js.css';
+@import '~@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';

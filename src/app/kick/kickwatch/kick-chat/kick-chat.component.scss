@@ -1,0 +1,30 @@
+/* Style the chat container */
+.chat-container {
+  height: 85vh; /* Set the chat container height to 70% of the viewport height */
+  max-height: 100%; /* Ensure it doesn't exceed its parent's height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  // border: 1px solid #ccc; /* Optional border for visual distinction */
+  padding: 10px; /* Optional padding for better aesthetics */
+  overflow-x: hidden;
+}
+
+/* Optional styling for chat messages */
+.chat-message {
+  margin-bottom: 5px;
+}
+
+.overlay {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.flex-container {
+  display: flex;
+  align-items: center; /* To align vertically in the middle */
+  gap: 10px; /* Optional: to provide some space between button and select */
+}

@@ -3,9 +3,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IonicModule, ToastController } from '@ionic/angular';
 
-import { Kickinterface } from '../interfaces/kickinterface';
+import { Kickinterface, CastjsInterface } from '../interfaces/kickinterface';
 import { KickService } from '../services/kick.service';
 
+declare var Castjs: any;
 @Component({
   selector: 'app-kickprofile',
   templateUrl: './kickprofile.component.html',
@@ -20,6 +21,8 @@ export class KickprofileComponent  implements OnInit {
 
   moreoptions: boolean = false;
 
+  cjs: CastjsInterface | undefined;
+
 
   // functions
 
@@ -28,7 +31,9 @@ export class KickprofileComponent  implements OnInit {
     private toastController: ToastController
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() { 
+    this.cjs = new Castjs();
+  }
 
   async copyToClipboard(url: string) {
     await navigator.clipboard.writeText(url);

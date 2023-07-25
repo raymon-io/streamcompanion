@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { Kickinterface } from './interfaces/kickinterface';
 import { KickService } from './services/kick.service';
 import { KickprofileComponent } from './kickprofile/kickprofile.component';
+import { FooterComponent } from '../footer/footer.component';
 // import { TestcompComponent } from '../testcomp/testcomp.component';
 
 @Component({
@@ -14,13 +15,14 @@ import { KickprofileComponent } from './kickprofile/kickprofile.component';
   templateUrl: './kick.page.html',
   styleUrls: ['./kick.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterModule, KickprofileComponent]
+  imports: [IonicModule, CommonModule, FormsModule, RouterModule, KickprofileComponent, FooterComponent]
 })
 export class KickPage implements OnInit {
   // variables
   // featured variables
-  featuredStreamersList = ['xqc'];
+  featuredStreamersListHardCoded = ['xqc'];
   featuredStreamers: Kickinterface[] = [];
+  nonFollowingVar: any[] = [];
 
   // search variables
   searchTerm: string = '';
@@ -41,11 +43,41 @@ export class KickPage implements OnInit {
 
   async getFeaturedStreamers() {
     let _featuredStreamersList = [];
-    for (const i of this.featuredStreamersList) {
+
+    // get hardcoded featured streamers
+    for (const i of this.featuredStreamersListHardCoded) {
       const data = await this.kickService.getApi(i) as Kickinterface;
-      _featuredStreamersList.push(data);
+      this.featuredStreamers.push(data);
     }
-    this.featuredStreamers = _featuredStreamersList;
+
+    await this.getNonFollowingFeatured();
+  }
+
+  async getNonFollowingFeatured() {
+    const url = 'https://kick.com/featured-livestreams/non-following';
+    const response = await fetch(url);
+    if (response.status == 200) {
+      const data = await response.json();
+      this.nonFollowingVar = data;
+      // load only the first 3
+      for (const i of data.slice(0, 3)) {
+        const profileData = (await this.kickService.getApi(i.channel_slug)) as Kickinterface;
+        this.featuredStreamers.push(profileData);
+        // remote the streamer from the nonFollowingVar
+        this.nonFollowingVar.splice(this.nonFollowingVar.indexOf(i), 1);
+      }
+      
+    }
+    // console.log(this.featuredStreamers);
+  }
+
+  async loadMoreFeatured() {
+    for (const i of this.nonFollowingVar) {
+      const profileData = (await this.kickService.getApi(i.channel_slug)) as Kickinterface;
+      this.featuredStreamers.push(profileData);
+      // remote the streamer from the nonFollowingVar
+      this.nonFollowingVar.splice(this.nonFollowingVar.indexOf(i), 1);
+    }
   }
 
   async searchStreamer() {
@@ -64,12 +96,27 @@ export class KickPage implements OnInit {
         // add livestream to popular streamers
         console.log(channels.length);
         for (const i of channels) {
-          const livestream = (await this.kickService.getApi(i.slug))?.livestream;
-          channels[channels.indexOf(i)].livestream = livestream;
+          if (i.isLive) {
+            const profileData = (await this.kickService.getApi(i.slug)) as Kickinterface;
+            const livestream = profileData?.livestream;
+            const playbackUrl = profileData?.playback_url;
+            channels[channels.indexOf(i)].livestream = livestream;
+            channels[channels.indexOf(i)].playback_url = playbackUrl;
+          }
         }
         this.searchFound = true;
         this.searching = false;
         this.searchStreamers = channels;
+        // console.log(this.searchStreamers);
+        this.searchStreamers.sort((a, b) => {
+          if (typeof b?.followersCount == 'number' && typeof a?.followersCount == 'number') {
+            return b.followersCount - a.followersCount;
+          } else {
+            console.log('should not happen');
+            return 0;
+          }
+        });
+        // console.log(this.searchStreamers);
       } else {
         this.searchFound = false;
         this.searching = false;

@@ -1,13 +1,24 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>kickwatch</ion-title>
+<ion-header *ngIf="!kickService.theaterMode()" [translucent]="true">
+  <ion-toolbar style="height: 40px;">
+    <!-- <ion-title>kickwatch</ion-title> -->
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/kick" style="--color: #333333; margin-top: -13px;"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">kickwatch</ion-title>
-    </ion-toolbar>
-  </ion-header>
+
+  <div class="container">
+    <!-- video player  -->
+    <div *ngIf="this.kickService.reloadBoolean() && this.kickService.streamUrl() !== ''" class="video-column">
+      <app-video-player [lowLatencyInput]="this.kickService.lowLatency()" [options]="options"></app-video-player>
+    </div>
+    <!-- chat -->
+    <div *ngIf="!kickService.hidechat() && kickService.signalStreamer()?.chatroom?.id" class="chat-column">
+      <div class="chat-wrapper">
+        <app-kick-chat [streamerUserId]="kickService.signalStreamer()?.user_id" [streamerId]="kickService.signalStreamer()?.id" [streamerChatroomId]="kickService.signalStreamer()?.chatroom?.id"></app-kick-chat>
+      </div>
+    </div>
+  </div>
 </ion-content>

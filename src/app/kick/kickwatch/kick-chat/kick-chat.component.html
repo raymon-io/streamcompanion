@@ -1,0 +1,21 @@
+<div class="flex-container">
+<ion-button size="small" fill="clear" color="light" style="border: 1px solid rgba(255, 255, 255, 0.2);" (click)="this.kickService.reload()">
+  <ion-label *ngIf="this.kickService.lowLatency()" style="color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">Enable Normal Mode</ion-label>
+  <ion-label *ngIf="!this.kickService.lowLatency()" style="color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">Enable Low Latency</ion-label>
+</ion-button>
+
+</div>
+<div class="chat-container" #chatContainer (scroll)="onScroll()">
+  <div *ngFor="let message of messages">
+    <strong [style.color]="message.sender.identity.color">{{ message.sender.username }}: </strong>
+    <!-- {{ message.content }} -->
+    <span [innerHTML]="processMessage(message.content)"></span>
+  <!-- </ng-container> -->
+  </div>
+</div> 
+
+<div class="overlay" *ngIf="showOverlay" (click)="scrollToBottom()">
+  <ion-button class="scroll-button" fill="clear" (click)="scrollToBottom()">
+    <ion-icon name="arrow-down"></ion-icon>
+  </ion-button>
+</div>

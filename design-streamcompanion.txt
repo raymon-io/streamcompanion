@@ -262,10 +262,76 @@
                     path: 'kick/:streamerName',
                     loadComponent: () => import('./kick/kickwatch/kickwatch.page').then( m => m.KickwatchPage)
                 },
-5. 
 
+5. video-player, kickchat
+    a. add video-player component
+        1. html <video #target class="video-js" controls playsinline preload="none"></video>
+        2. video-player.component.ts 
+            a. add standalone true and encapsulation in @Component 
+                Code:
+                    standalone: true,
+                    encapsulation: ViewEncapsulation.None,
+            b. add viewchild elementRef and input options and player 
+                Code:  
+                   @ViewChild('target', { static: true }) target!: ElementRef;
+                    @Input() options!: {
+                        fluid?: boolean,
+                        aspectRatio?: string,
+                        autoplay?: boolean,
+                        sources: {
+                        src: string,
+                        type: string,
+                        }[],
+                        controls?: boolean,
+                        fill?: boolean,
+                    };
 
-        
+                    // player!: videojs.Player;
+                    player: any;
+            c. add to constructor 
+                Code:
+                      constructor(
+                            private elementRef: ElementRef,
+                            public kickService: KickService
+                        ) { }
+            d. add ng oninit and ngondestroy 
+                    Code:
+                          ngOnInit() {
+                                if (this.kickService.streamUrl() !== '') {
+                                this.options.sources[0].src = this.kickService.streamUrl();
+                                console.log(this.options);
+                                this.player = videojs(this.target.nativeElement, this.options, function onPlayerReady(this: any) {
+                                    console.log('onPlayerReady', this);
+                                });
+                                this.player.chromecast();
+                                }
+                            }
+
+                            // Dispose the player OnDestroy
+                            ngOnDestroy() {
+                                if (this.player) {
+                                this.player.dispose();
+                                }
+                            }
+    c. create chat component
+    b. edit kickwatch 
+        1. html 
+            a. add video player 
+                Code:
+                    <!-- video player  -->
+                    <div *ngIf="this.kickService.streamUrl() !== ''" class="video-column">
+                    <app-video-player [options]="options"></app-video-player>
+                    </div> 
+            b. add chat 
+                Code:
+                    <!-- chat -->
+                    <div *ngIf="!hidechat" class="chat-column">
+                    <div class="chat-wrapper">
+                        <app-kickchat></app-kickchat>
+                    </div>
+                    </div>
+        2. .ts 
+            a. add videoplayer component, chat component 
                             
 
 
