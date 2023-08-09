@@ -1,6 +1,6 @@
 {
-  "name": "Streamer Companion App",
-  "short_name": "Streamer Companion App",
+  "name": "StreamCompanion.App",
+  "short_name": "StreamCompanion.App",
   "theme_color": "#1c1c1e",
   "background_color": "#121212",
   "display": "standalone",

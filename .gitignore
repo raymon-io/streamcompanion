@@ -72,3 +72,6 @@ Thumbs.db
 .gitignore
 .firebaserc
 firebase.json
+
+.vscode/
+testfiles/

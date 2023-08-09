@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 
 // pusher
 import Pusher from 'pusher-js';
+import { ActivatedRoute } from '@angular/router';
 
 interface ChatMessage {
   id: number;
@@ -44,8 +45,11 @@ export class KickChatComponent implements OnInit {
   @Input() streamerId!: number | undefined;
   @Input() streamerUserId!: number | undefined;
   @Input() streamerChatroomId!: number | undefined;
+  streamerSlug!: string | undefined;
 
   @ViewChild('chatContainer', { static: true }) chatContainer!: ElementRef;
+
+  // chatDelay: boolean = false;
 
 
   cursor: number | undefined;
@@ -65,13 +69,15 @@ export class KickChatComponent implements OnInit {
 
   constructor(
     public kickService: KickService,
-    // private sanitizer: DomSanitizer,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
     // this.intervalVar = setInterval(() => this.loadMessageCheck(), 5000);
     this.loadMessageCheck();
     this.getWsChat();
+    this.get7thTvEmotes();
+    this.streamerSlug = this.route.snapshot.paramMap.get('streamerName') as string;
   }
 
   ngAfterViewInit() {
@@ -86,116 +92,13 @@ export class KickChatComponent implements OnInit {
     if (this.pusher) {
       // unsubscribe from pusher
       this.pusher.unsubscribe('chatrooms.' + this.streamerChatroomId + '.v2');
+    } else {
+      console.log('pusher not found');
     }
   }
 
-  async getKick7TvEmotesList() {
-    const endpointUrl = "https://7tv.io/v3/gql";
-    const connectionPlatform = "KICK";
-    const userByConnectionQuery = `
-      query GetUserByConnection($platform: ConnectionPlatform!, $id: String!) {
-        user: userByConnection(platform: $platform, id: $id) {
-          id
-          username
-          connections {
-            id
-            username
-            display_name
-            platform
-            linked_at
-            emote_capacity
-            emote_set_id
-          }
-        }
-      }
-    `;
-
-    async function getUserByConnection(platform: string, id: any) {
-      const response = await fetch(endpointUrl, {
-        credentials: "omit",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: userByConnectionQuery,
-          variables: { platform, id },
-        }),
-        method: "POST",
-        mode: "cors",
-      });
-
-      const data = await response.json();
-      return data;
-    }
-    const data = await getUserByConnection(connectionPlatform, this.streamerUserId?.toString());
-    // check for response status
-    let emoteSetId = '';
-    if (data.data.user) {
-      for (const i of data.data.user.connections) {
-        if (i.platform == 'KICK') {
-          console.log(i.emote_set_id);
-          emoteSetId = i.emote_set_id;
-        }
-      }
-    }
-
-    if (emoteSetId) {
-      const emoteSetQuery = `
-query GetEmoteSet($id: ObjectID!, $formats: [ImageFormat!]) {
-  emoteSet(id: $id) {
-    id
-    name
-    emotes {
-      name
-      data {
-        host {
-          url
-          files(formats: $formats) {
-            name
-            format
-          }
-        }
-      }
-    }
-  }
-}
-`;
-
-      async function getEmoteSetData(emoteSetId: string) {
-        const response = await fetch(endpointUrl, {
-          credentials: "omit",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: emoteSetQuery,
-            // variables: { id: emoteSetId, formats: ["AVIF", "WEBP"] }, // Add any desired image formats here
-            variables: { id: emoteSetId, formats: ["AVIF", "WEBP"] }, // Add any desired image formats here
-          }),
-          method: "POST",
-          mode: "cors",
-        });
-
-        const data = await response.json();
-        return data;
-      }
-      const emoteSetData = await getEmoteSetData(emoteSetId);
-      if (emoteSetData.data.emoteSet) {
-        // this.emotes = emoteSetData.data.emoteSet.emotes;
-        // // make a list with all the emotes.id
-        // for (const i of this.emotes) {
-        //   this.emoteSearchFiles.push(i.id);
-        // }
-        // the data is like {id: '223', 'name':'bla'} make this in dictionary like {223: 'bla'}
-        for (const i of emoteSetData.data.emoteSet.emotes) {
-          this.emoteDict[i.id] = i.name;
-        }
-
-
-      }
-
-    }
-
+  async get7thTvEmotes() {
+    this.emoteDict = await this.kickService.getKick7TvEmotesList(this.streamerUserId, this.emoteDict);
   }
 
 
@@ -242,10 +145,13 @@ query GetEmoteSet($id: ObjectID!, $formats: [ImageFormat!]) {
         let emoteHtml = '<img src="' + emoteUrl + '" title="' + emoteName + '" width="28" height="28" loading="lazy" />';
         message = message.replace(words[i], emoteHtml);
         // console.log(message);
-      } else if (this.emoteDict && i in this.emoteDict) {
-        const url = 'https://cdn.7tv.app/emote/' + i + '/2x.avif';
+      } else if (this.emoteDict && words[i] in this.emoteDict) {
+        const url = 'https://cdn.7tv.app/emote/' + this.emoteDict[words[i]] + '/1x.avif';
+        // console.log('emote found', words[i], url);
         let emoteHtml = '<img src="' + url + '" title="' + this.emoteDict[i] + '" width="28" height="28" loading="lazy" />';
         message = message.replace(words[i], emoteHtml);
+      } else {
+        // console.log('no emote found', words[i]);
       }
     }
     // return this.sanitizer.bypassSecurityTrustHtml(message);
@@ -314,6 +220,15 @@ query GetEmoteSet($id: ObjectID!, $formats: [ImageFormat!]) {
     }
     // this.isAtBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
   }
+
+  // enableChatDelay() {
+  //   this.chatDelay = !this.chatDelay;
+  //   if (!this.chatDelay) {
+  //     return;
+  //   }
+  //   console.log('chat delay enabled');
+
+  // }
 
 
 }

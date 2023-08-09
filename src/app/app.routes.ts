@@ -13,9 +13,16 @@ export const routes: Routes = [
     path: 'kick/:streamerName',
     loadComponent: () => import('./kick/kickwatch/kickwatch.page').then( m => m.KickwatchPage)
   },
-  // {
-  //   path: '',
-  //   redirectTo: '',
-  //   pathMatch: 'full',
-  // },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./privacy/privacy.page').then( m => m.PrivacyPage)
+  },
+  {
+    path: 'kick/:streamerSlug/videos',
+    loadComponent: () => import('./kick/videos/videos.page').then( m => m.VideosPage)
+  },
+  {
+    path: 'kick/:streamerSlug/chat',
+    loadComponent: () => import('./kick/kickwatch/popout-chat/popout-chat.page').then( m => m.PopoutChatPage)
+  },
 ];

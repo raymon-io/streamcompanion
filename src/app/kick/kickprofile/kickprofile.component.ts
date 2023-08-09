@@ -5,16 +5,19 @@ import { IonicModule, ToastController } from '@ionic/angular';
 
 import { Kickinterface, CastjsInterface } from '../interfaces/kickinterface';
 import { KickService } from '../services/kick.service';
+import { VideoAudioComponentComponent } from '../kickwatch/video-audio-component/video-audio-component.component';
 
 declare var Castjs: any;
+declare var window: any;
+
 @Component({
   selector: 'app-kickprofile',
   templateUrl: './kickprofile.component.html',
   styleUrls: ['./kickprofile.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule]
+  imports: [IonicModule, CommonModule, RouterModule, VideoAudioComponentComponent]
 })
-export class KickprofileComponent  implements OnInit {
+export class KickprofileComponent implements OnInit {
 
   // 'streamer' input
   @Input() streamer!: Kickinterface;
@@ -22,6 +25,9 @@ export class KickprofileComponent  implements OnInit {
   moreoptions: boolean = false;
 
   cjs: CastjsInterface | undefined;
+
+  iosDetected: boolean = false;
+  airPlayVideo: boolean = false;
 
 
   // functions
@@ -31,8 +37,14 @@ export class KickprofileComponent  implements OnInit {
     private toastController: ToastController
   ) { }
 
-  ngOnInit() { 
+  ngOnInit() {
     this.cjs = new Castjs();
+  }
+
+  ngAfterViewInit() {
+    if (!!window.WebKitPlaybackTargetAvailabilityEvent) {
+      this.iosDetected = true;
+    }
   }
 
   async copyToClipboard(url: string) {
@@ -42,6 +54,10 @@ export class KickprofileComponent  implements OnInit {
       duration: 2000
     });
     toast.present();
+  }
+
+  openAirPlay() {
+    this.airPlayVideo = true;
   }
 
 }

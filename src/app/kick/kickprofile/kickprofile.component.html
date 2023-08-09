@@ -1,4 +1,5 @@
 <ion-item>
+
   <ion-avatar slot="start">
     <img *ngIf="streamer.user.profile_pic"
       [src]="streamer.user.profile_pic ? streamer.user.profile_pic: './assets/kick/defaultPic.png'">
@@ -24,20 +25,29 @@
         <ion-icon name="eye-outline" style="padding-right: 5px;"></ion-icon>
         <ion-text>{{ streamer.livestream?.viewer_count | number }} Viewers</ion-text>
       </div>
+      <!-- airplay -->
+      <ion-button *ngIf="this.iosDetected" (click)="openAirPlay()">
+        AirPlay
+        <ion-icon name="logo-apple"></ion-icon>
+      </ion-button>
+      <div *ngIf="airPlayVideo">
+        <app-video-audio-component [videoSrc]="streamer.playback_url"></app-video-audio-component>
+      </div>
+
       <ion-button (click)="kickService.signalStreamer.set(streamer)" [routerLink]="['/kick/', streamer.slug]">
         <ion-icon name="play"></ion-icon>
         Watch
-      </ion-button>
-      <ion-button [href]="'https://kick.com/'+streamer.slug" target="_blank"
-        title="Open url in new window: https://kick.com/{{streamer.slug}}">
-        Open in Kick
-        <ion-icon name="open"></ion-icon>
       </ion-button>
       <ion-button *ngIf="cjs?.available" (click)="cjs?.cast('https://corsproxy.io/?' + streamer.playback_url)"
         title="Cast to chromecast">
         <ion-icon [src]="'./assets/cast/cast_white.svg'"></ion-icon>
         Chromecast
       </ion-button>
+      <ion-button [routerLink]="['/kick/', streamer.slug, 'videos']">
+        Videos
+        <ion-icon name="videocam"></ion-icon>
+      </ion-button>
+
       <!-- more options, if selected show these -->
       <ion-button (click)="moreoptions = !moreoptions"
         title="Open more options like download, open in vlc or download stream url">
@@ -46,6 +56,16 @@
         <ion-icon *ngIf="moreoptions" name="chevron-up-outline"></ion-icon>
       </ion-button>
       <div *ngIf="moreoptions">
+        <!-- popout chat -->
+        <ion-button [href]="'/kick/'+streamer.slug+'/chat'" title="Popout chat in new window" target="_blank">
+          <ion-icon name="chatbox-ellipses-outline"></ion-icon>
+          Popout Chat
+        </ion-button>
+        <ion-button [href]="'https://kick.com/'+streamer.slug" target="_blank"
+          title="Open url in new window: https://kick.com/{{streamer.slug}}">
+          Open in Kick
+          <ion-icon name="open"></ion-icon>
+        </ion-button>
         <ion-button [href]="streamer.playback_url" target="_blank"
           title="Download the m3u8 file to open in program such as VLC">
           <ion-icon name="download"></ion-icon>
@@ -62,6 +82,12 @@
         </ion-button>
       </div>
     </div>
-    <p *ngIf="!streamer.livestream?.is_live">Offline</p>
+    <div *ngIf="!streamer.livestream?.is_live">
+      <p>Offline</p>
+      <ion-button [routerLink]="['/kick/', streamer.slug, 'videos']">
+        Videos
+        <ion-icon name="videocam"></ion-icon>
+      </ion-button>
+    </div>
   </ion-label>
 </ion-item>

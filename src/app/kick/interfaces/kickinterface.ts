@@ -27,6 +27,32 @@ export interface Kickinterface {
 	};
 }
 
+export interface KickVideoInterface {
+	channel_id: number;
+	session_title: string;
+	source: string;
+	views: number;
+	duration: number;
+	start_time: number;
+	categories: {
+		name: string;
+	}[];
+	thumbnail: {
+		src: string;
+	};
+	video: {
+		uuid: string;
+	}
+	videoQualities?: {
+		src1080p60: string;
+		src720p60: string;
+		src480p30: string;
+		src360p30: string;
+		src160p30: string;
+	};
+	durationString: string;
+}
+
 export interface CastjsInterface {
 	available: boolean;
 	connected: boolean;

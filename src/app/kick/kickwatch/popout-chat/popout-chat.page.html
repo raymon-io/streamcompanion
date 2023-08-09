@@ -1,0 +1,19 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <!-- <ion-title>PopoutChat</ion-title> -->
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/kick" style="--color: #333333; margin-top: -13px;"></ion-back-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ionContentClass">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">PopoutChat</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <app-kick-chat *ngIf="streamerId" [streamerId]="streamerId" [streamerUserId]="streamerUserId" [streamerChatroomId]="streamerChatroomId"></app-kick-chat>
+</ion-content>

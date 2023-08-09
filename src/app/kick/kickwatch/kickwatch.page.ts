@@ -40,6 +40,11 @@ export class KickwatchPage implements OnInit {
     //   },
     // },
     // liveui: true,
+    plugins: {
+      // airplay: {
+      //   addButtonToControlBar: true,
+      // },
+    },
     controlBar: {
       currentTimeDisplay: true,
       durationDisplay: true,

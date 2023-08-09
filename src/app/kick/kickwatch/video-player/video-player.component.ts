@@ -4,9 +4,13 @@ import { KickService } from '../../services/kick.service';
 import videojs from 'video.js';
 // @ts-ignore
 import chromecast from '@silvermine/videojs-chromecast';
+// @ts-ignore
+import airplay from '@silvermine/videojs-airplay';
 import { registerIVSTech } from 'amazon-ivs-player';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+
+declare var window: any;
 
 @Component({
   selector: 'app-video-player',
@@ -35,6 +39,12 @@ export class VideoPlayerComponent implements OnInit {
     fill?: boolean;
     techOrder?: string[];
     liveui?: boolean;
+    plugins?: {
+      airPlay?: {
+        addButtonToControlBar?: boolean;
+        buttonPositionIndex?: number;
+      };
+    };
   };
 
   // player!: videojs.Player;
@@ -51,12 +61,13 @@ export class VideoPlayerComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // console.log('ngOnInit');
+    console.log('ngOnInit');
+    // console.log(airplay);
   }
 
   ngAfterViewInit() {
     // console.log('ngAfterViewInit');
-    console.log('lowlatency',this.lowLatencyInput);
+    console.log('lowlatency', this.lowLatencyInput);
     this.initializePlayerAndCast();
     this.addButtons();
   }
@@ -75,6 +86,7 @@ export class VideoPlayerComponent implements OnInit {
 
   initializePlayerAndCast() {
     if (this.kickService.streamUrl() !== '') {
+
       if (this.kickService.lowLatency()) {
         // registerIVSQualityPlugin(videojs);
         this.options.techOrder = ['AmazonIVS', 'html5'];
@@ -84,7 +96,15 @@ export class VideoPlayerComponent implements OnInit {
         this.options.techOrder = ['chromecast', 'html5'];
         console.log(this.options.techOrder);
         // silvermine chromecast initialization
+        // this.options.plugins = {
+        //   airPlay: {
+        //     addButtonToControlBar: true,
+        //     buttonPositionIndex: 1,
+        //   },
+        // };
         chromecast(videojs, { preloadWebComponents: true });
+
+        airplay(videojs);
       }
 
 
@@ -96,8 +116,10 @@ export class VideoPlayerComponent implements OnInit {
       ];
       // console.log(this.options);
       this.player = videojs(this.target.nativeElement, this.options, function onPlayerReady(this: any) {
-        // console.log('onPlayerReady', this);
+        console.log('onPlayerReady', this);
       });
+      // airplay(videojs);
+      // videojs.registerPlugin('airplay', airplay);
 
       if (this.kickService.lowLatency()) {
         // this.player.enableIVSQualityPlugin();
@@ -105,7 +127,11 @@ export class VideoPlayerComponent implements OnInit {
       } else {
         // chromecast do not work with ivs
         this.player.chromecast();
+        this.player.airPlay();
       }
+
+      // list all plugins
+      // console.log(videojs.getPlugins());
 
 
 
@@ -114,6 +140,17 @@ export class VideoPlayerComponent implements OnInit {
 
 
   addButtons() {
+
+    // reload
+    this.addButtonCommonFunction(
+      '<ion-icon name="refresh-outline"></ion-icon><div>Toggle Latency</div>',
+      'Toggle Low Latency. Default is Low Latency',
+      () => {
+        this.kickService.reload();
+      },
+      this.player?.controlBar.el().lastChild
+    );
+
     // theater mode
     this.addButtonCommonFunction(
       '<ion-icon src="./assets/cast/theater.svg"></ion-icon>Theatre',
@@ -147,15 +184,22 @@ export class VideoPlayerComponent implements OnInit {
       this.player?.controlBar.el().firstChild
     );
 
-    // reload
-    this.addButtonCommonFunction(
-      '<ion-icon name="refresh-outline"></ion-icon><div>Toggle Latency</div>',
-      'Toggle Low Latency. Default is Low Latency',
-      () => {
-        this.kickService.reload();
-      },
-      this.player?.controlBar.el().firstChild
-    );
+
+    // airplay
+    if (!!window.WebKitPlaybackTargetAvailabilityEvent) {
+      this.addButtonCommonFunction(
+        '<ion-icon name="logo-apple"></ion-icon><div>Airplay</div>',
+        'Airplay',
+        () => {
+          this.player?.trigger('airPlayRequested');
+          // hasAirPlayAPISupport
+          // airplay.hasAirPlayAPISupport();
+          // console.log(!!window.WebKitPlaybackTargetAvailabilityEvent);
+
+        },
+        this.player?.controlBar.el().firstChild
+      );
+    }
 
   }
 

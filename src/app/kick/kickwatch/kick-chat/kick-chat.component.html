@@ -1,15 +1,21 @@
-<div class="flex-container">
+<!-- <div class="flex-container">
 <ion-button size="small" fill="clear" color="light" style="border: 1px solid rgba(255, 255, 255, 0.2);" (click)="this.kickService.reload()">
   <ion-label *ngIf="this.kickService.lowLatency()" style="color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">Enable Normal Mode</ion-label>
   <ion-label *ngIf="!this.kickService.lowLatency()" style="color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">Enable Low Latency</ion-label>
 </ion-button>
+</div> -->
 
+<div class="flex-container" *ngIf="streamerSlug">
+  <ion-button size="small" fill="clear" color="light" style="border: 1px solid rgba(255, 255, 255, 0.2);" [href]="['/kick/'+streamerSlug+'/chat']" target="_blank">
+    <ion-label style="color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">Popout Chat</ion-label>
+  </ion-button>
 </div>
+
 <div class="chat-container" #chatContainer (scroll)="onScroll()">
-  <div *ngFor="let message of messages">
+  <div *ngFor="let message of messages" class="single-chat-message">
     <strong [style.color]="message.sender.identity.color">{{ message.sender.username }}: </strong>
     <!-- {{ message.content }} -->
-    <span [innerHTML]="processMessage(message.content)"></span>
+    <span [innerHTML]="processMessage(message.content)" color="#fff" style="color: white;"></span>
   <!-- </ng-container> -->
   </div>
 </div> 
@@ -19,3 +25,11 @@
     <ion-icon name="arrow-down"></ion-icon>
   </ion-button>
 </div>
+<!-- popout chat button -->
+<!-- buttons to turn chat delay on and off -->
+<!-- <div class="flex-container">
+  <ion-button size="small" fill="clear" color="light" style="border: 1px solid rgba(255, 255, 255, 0.2);" (click)="enableChatDelay()">
+    <ion-label *ngIf="chatDelay" style="color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">Disable Chat Delay</ion-label>
+    <ion-label *ngIf="!chatDelay" style="color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">Enable Chat Delay</ion-label>
+  </ion-button>
+</div> -->

@@ -18,4 +18,21 @@
   .chat-wrapper {
     height: 100%;
     /* add any other styles you need */
+    background-color: #1e1e1e;
+  }
+
+  body {
+    background-color: #1e1e1e;
+  }
+
+  ion-toolbar {
+    --background: none;
+    opacity: 1;
+    background-color: #1e1e1e;
+  }
+
+  ion-content {
+    --background: none;
+    opacity: 1;
+    background-color: #1e1e1e;
   }

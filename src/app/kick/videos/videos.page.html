@@ -1,0 +1,88 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>videos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">videos</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- all videos -->
+  <!-- show spinnging wheel while loading -->
+  <div *ngIf="this.videos.length === 0 && !noVideos">
+    <ion-spinner></ion-spinner>
+  </div>
+  <!-- if no videos say "No Videos Found" in middle -->
+  <div *ngIf="this.videos.length === 0 && noVideos">
+    <div class="ion-text-center">
+      <h1>No Videos Found</h1>
+    </div>
+  </div>
+  <div *ngIf="this.videos.length > 0">
+    <div *ngIf="airPlayVideo && airPlayVideoUrl">
+      <app-video-audio-component [videoSrc]="airPlayVideoUrl"></app-video-audio-component>
+    </div>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let item of videos">
+          <ion-card>
+            <img [src]="item.thumbnail.src" loading="lazy" />
+            <ion-card-header>
+              <ion-card-title>{{item.session_title}}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <p>Views: {{item.views}}</p>
+              <p>Duration: {{item.durationString}}</p>
+              <p>Start Time: {{item.start_time}}</p>
+              <p>Categories:
+                <span *ngFor="let category of item.categories">{{category.name}} </span>
+              </p>
+              <!-- select quality: -->
+              <div class="ion-text-center"><p>Select Quality:</p></div>
+              <ion-select placeholder="Select Quality" [(ngModel)]="selectedQuality">
+                <ion-select-option value="auto">Auto Quality (Default)</ion-select-option>
+                <ion-select-option value="src1080p60">1080p60</ion-select-option>
+                <ion-select-option value="src720p60">720p60</ion-select-option>
+                <ion-select-option value="src480p30">480p</ion-select-option>
+                <ion-select-option value="src360p30">360p</ion-select-option>
+                <ion-select-option value="src160p30">160p</ion-select-option>
+                <!-- auto matic quality - default  -->
+
+              </ion-select>
+              <!-- airplay -->
+              <ion-button *ngIf="this.iosDetected" (click)="openAirPlay(item.source)">
+                AirPlay
+                <ion-icon name="logo-apple"></ion-icon>
+              </ion-button>
+              <!-- chromecast -->
+              <ion-button *ngIf="cjs?.available" (click)="castVideo(item)">
+                <ion-icon [src]="'./assets/cast/cast_white.svg'"></ion-icon>
+                Chromecast
+              </ion-button>
+              <!-- <ion-button (click)="watchVideo(item)">Watch here</ion-button> -->
+              <ion-button (click)="downloadVideo(item)">
+                <ion-icon name="download"></ion-icon>
+                Download
+              </ion-button>
+              <!-- popout chat -->
+              <!-- <ion-button (click)="popoutChat(item)">Popout Chat</ion-button> -->
+              <ion-button [href]="'https://kick.com/video/'+item.video.uuid" target="_blank">
+                Open in Kick
+                <ion-icon name="open"></ion-icon>
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+
+
+
+
+</ion-content>

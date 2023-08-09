@@ -1,0 +1,6 @@
+<div>
+    <ion-button (click)="onAirPlayRequested()">Click to initiate AirPlay</ion-button>
+</div>
+<video #target controls autoplay playsInline preload="auto" height="300" width="300" [src]="videoSrc"
+    type="vnd.apple.mpegurl">
+</video>

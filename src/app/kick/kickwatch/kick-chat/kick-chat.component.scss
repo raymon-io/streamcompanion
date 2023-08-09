@@ -6,11 +6,13 @@
   // border: 1px solid #ccc; /* Optional border for visual distinction */
   padding: 10px; /* Optional padding for better aesthetics */
   overflow-x: hidden;
+  background-color: #1e1e1e;
 }
 
 /* Optional styling for chat messages */
 .chat-message {
   margin-bottom: 5px;
+  color: #fff;
 }
 
 .overlay {
@@ -27,4 +29,20 @@
   display: flex;
   align-items: center; /* To align vertically in the middle */
   gap: 10px; /* Optional: to provide some space between button and select */
+  background-color: #1e1e1e;
+}
+
+.single-chat-message {
+  // display: flex;
+  // align-items: center;
+  // padding top and bottom: 5px;
+  // write the code
+  padding: 5px;
+  // gap: 10px;
+  background-color: #1e1e1e;
+}
+
+// global background color
+body {
+  background-color: #1e1e1e;
 }
