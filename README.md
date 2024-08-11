@@ -1,3 +1,4 @@
+#### This project is no longer maintained. Read more about it https://streamcompanion.app/apps
 # Stream Companion App
 ## Website Url: https://streamcompanion.app
 
